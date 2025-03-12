@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie Recommendation Demo</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .container {
+            width: 100%;
+            min-height: 800px; /* Adjust based on your app's height */
+        }
+    </style>
+    <!-- Gradio JS Library -->
+    <script
+        type="module"
+        src="https://gradio.s3-us-west-2.amazonaws.com/5.20.1/gradio.js"
+    ></script>
+</head>
+<body>
+    <h1>Movie Recommendation System</h1>
+    <div class="container">
+        <!-- Embed the Hugging Face hosted Gradio app -->
+        <gradio-app src="https://kevinwang676-movie-agents.hf.space"></gradio-app>
+    </div>
+</body>
+</html>
