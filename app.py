@@ -1,4 +1,113 @@
-medy", "Drama", "Disaster"],
+import gradio as gr
+import asyncio
+import json
+import functools
+import numpy as np
+from sklearn.metrics.pairwise import cosine_similarity
+from sentence_transformers import SentenceTransformer
+from agents import Agent, Runner, function_tool
+
+movie_knowledge_base = [
+    {
+        "title": "A Goofy Movie",
+        "description": "Max Goof, a teenager, embarks on a chaotic road trip with his bumbling father, Goofy, to bond and attend a concert, navigating teenage rebellion and family love.",
+        "genre": ["Animation", "Children", "Comedy", "Romance"],
+        "director": "Kevin Lima",
+        "actors": ["Bill Farmer", "Jason Marsden", "Jim Cummings"],
+        "year": 1995,
+        "box_office": 35348597,
+        "budget": 18000000,
+        "awards": [],
+        "rating": 4.5
+    },
+    {
+        "title": "Gumby: The Movie",
+        "description": "Gumby, a claymation character, and his friends must stop the evil Blockheads from replacing their town with robots during a benefit concert.",
+        "genre": ["Animation", "Children"],
+        "director": "Art Clokey",
+        "actors": ["Dal McKennon", "Art Clokey", "Gloria Clokey"],
+        "year": 1995,
+        "box_office": 57076,
+        "budget": 2800000,
+        "awards": [],
+        "rating": 3.5
+    },
+    {
+        "title": "The Swan Princess",
+        "description": "A princess cursed to become a swan must rely on true love to break the spell, facing an evil sorcerer in this animated fairy tale.",
+        "genre": ["Animation", "Children"],
+        "director": "Richard Rich",
+        "actors": ["Michelle Nicastro", "Howard McGillin", "Jack Palance"],
+        "year": 1994,
+        "box_office": 9771650,
+        "budget": 45000000,
+        "awards": [],
+        "rating": 3.0
+    },
+    {
+        "title": "The Lion King",
+        "description": "Simba, a young lion prince, flees after his father’s death but returns to reclaim his throne from his treacherous uncle Scar in this animated epic.",
+        "genre": ["Adventure", "Animation", "Children", "Drama", "Musical", "IMAX"],
+        "director": ["Roger Allers", "Rob Minkoff"],
+        "actors": ["Matthew Broderick", "Jeremy Irons", "James Earl Jones"],
+        "year": 1994,
+        "box_office": 968483777,
+        "budget": 45000000,
+        "awards": ["Oscar Best Original Score", "Oscar Best Original Song", "Golden Globe Best Motion Picture - Musical or Comedy"],
+        "rating": 4.5
+    },
+    {
+        "title": "The Secret Adventures of Tom Thumb",
+        "description": "A tiny boy, born to normal parents, is kidnapped and navigates a dark, surreal world of science and survival in this stop-motion tale.",
+        "genre": ["Adventure", "Animation"],
+        "director": "Dave Borthwick",
+        "actors": ["Nick Upton", "Deborah Collard", "Frank Passingham"],
+        "year": 1993,
+        "box_office": 0,
+        "budget": 0,
+        "awards": [],
+        "rating": 2.5
+    },
+    {
+        "title": "This So-Called Disaster",
+        "description": "A documentary capturing actor Sam Shepard as he directs a play, blending rehearsals with personal reflections on art and life.",
+        "genre": ["Documentary", "Disaster"],
+        "director": "Michael Almereyda",
+        "actors": ["Sam Shepard", "Nick Nolte", "Sean Penn"],
+        "year": 2003,
+        "box_office": 46658,
+        "budget": 0,
+        "awards": [],
+        "rating": 3.0
+    },
+    {
+        "title": "Love and Other Disasters",
+        "description": "A fashion magazine assistant in London juggles romance, friendship, and chaos while trying to matchmake those around her.",
+        "genre": ["Comedy", "Romance", "Disaster"],
+        "director": "Alek Keshishian",
+        "actors": ["Brittany Murphy", "Matthew Rhys", "Santiago Cabrera"],
+        "year": 2006,
+        "box_office": 6743917,
+        "budget": 10000000,
+        "awards": [],
+        "rating": 3.0
+    },
+    {
+        "title": "Disaster Movie",
+        "description": "A group of friends faces absurd, over-the-top disasters in a parody of blockbuster films, filled with pop culture references.",
+        "genre": ["Comedy", "Disaster"],
+        "director": "Aaron Seltzer",
+        "actors": ["Matt Lanter", "Vanessa Minnillo", "Kim Kardashian"],
+        "year": 2008,
+        "box_office": 34816824,
+        "budget": 20000000,
+        "awards": [],
+        "rating": 2.0
+    },
+    {
+        "title": "It's a Disaster",
+        "description": "A brunch among friends turns chaotic when they learn of an impending apocalyptic attack, testing their relationships and humor.",
+        "genre": ["Comedy", "Drama", "Disaster"],
         "director": "Todd Berger",
         "actors": ["Rachel Boston", "Kevin M. Brennan", "David Cross"],
         "year": 2012,
@@ -610,6 +719,7 @@ def log_function_tool(logger_param):
 def find_similar_movies(query_description, top_n=3):
     """
     Find movies similar to the query description using sentence embeddings and cosine similarity.
+
     This implementation uses SentenceTransformer to create semantic embeddings
     of the movie descriptions and calculates similarity using cosine similarity.
     """
@@ -834,6 +944,7 @@ orchestrator_agent = Agent(
     name="Movie Analysis Orchestrator",
     instructions="""
     You are the central coordinator for movie analysis tasks and need to handoff to the appropriate agent.
+
     Your responsibilities include:
     1. Properly understanding the user's movie analysis request
     2. Handoff specific analysis tasks to the appropriate specialized agents based on the user's request:
