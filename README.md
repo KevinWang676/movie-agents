@@ -8,6 +8,6 @@ https://huggingface.co/spaces/kevinwang676/movie_agents
 
 Please see Multi_Agent_System_OpenAI.ipynb
 
-### individual Contribution
+### Individual Contribution
 
 Please see MSAI_371_final_project_contribution.pdf
